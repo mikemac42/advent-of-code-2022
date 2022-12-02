@@ -4,5 +4,4 @@ build
 src/**/*.txt
 
 .DS_store
-answers.txt
 gh.txt
