@@ -1,3 +1,7 @@
+package day01
+
+import utils.readInput
+
 fun main() {
   fun part1(input: List<String>): Int {
     var currentFood = 0
