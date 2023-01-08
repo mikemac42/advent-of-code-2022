@@ -8,12 +8,19 @@ acctuvwj
 abdefghi"""
   val realInput = File("src/Day12.txt").readText()
 
-  val part1TestOutput = fewestSteps(testInput)
+  val part1TestOutput = fewestSteps(testInput) { it == 'S' }
   println("Part 1 Test Output: $part1TestOutput")
   check(part1TestOutput == 31)
 
-  val part1RealOutput = fewestSteps(realInput)
+  val part1RealOutput = fewestSteps(realInput) { it == 'S' }
   println("Part 1 Real Output: $part1RealOutput")
+
+  val part2TestOutput = fewestSteps(testInput) { it == 'S' || it == 'a' }
+  println("Part 2 Test Output: $part2TestOutput")
+  check(part2TestOutput == 29)
+
+  val part2RealOutput = fewestSteps(realInput) { it == 'S' || it == 'a' }
+  println("Part 2 Real Output: $part2RealOutput")
 }
 
 /**
@@ -25,40 +32,26 @@ abdefghi"""
  * During each step, you can move exactly one square up, down, left, or right.
  * The elevation of the destination can be at most one higher than the current elevation.
  */
-fun fewestSteps(input: String): Int {
-  // Parse grid
-  var startPos = Pos(-1, -1)
-  var endPos = Pos(-1, -1)
-  val elevations = mutableMapOf<Pos, Int>()
-  input.lines().mapIndexed { i, line ->
-    line.mapIndexed { j, char ->
-      if (char == 'S') startPos = Pos(i, j)
-      if (char == 'E') endPos = Pos(i, j)
-      elevations[Pos(i, j)] = when (char) {
-        'S' -> 0
-        'E' -> 'z'.code - 'a'.code
-        else -> char.code - 'a'.code
-      }
-    }
-  }
-  val lastPos = elevations.keys.last()
+fun fewestSteps(input: String, isStartPos: (Char) -> Boolean): Int {
+  val hill = parseHill(input, isStartPos)
 
   // Breadth First Search
-  val visited = elevations.entries.associate { it.key to false }.toMutableMap()
-  val distances: MutableMap<Pos, Int?> = elevations.entries.associate { it.key to null }.toMutableMap()
+
+  val visited = hill.elevations.entries.associate { it.key to false }.toMutableMap()
+  val distances: MutableMap<Pos, Int?> = hill.elevations.entries.associate { it.key to null }.toMutableMap()
   val queue = mutableListOf<Pos>()
 
-  visited[startPos] = true
-  distances[startPos] = 0
-  queue.add(startPos)
+  hill.startPosList.forEach { startPos ->
+    visited[startPos] = true
+    distances[startPos] = 0
+    queue.add(startPos)
+  }
 
-  var numLoops = 0L
   while (queue.isNotEmpty()) {
-    numLoops++
     val pos = queue.removeFirst()
-    if (pos == endPos) break
+    if (pos == hill.endPos) break
 
-    val elevation = elevations[pos]!!
+    val elevation = hill.elevations[pos]!!
     val distance = distances[pos]!!
 
     listOf(
@@ -67,9 +60,9 @@ fun fewestSteps(input: String): Int {
       Pos(pos.x - 1, pos.y),
       Pos(pos.x + 1, pos.y)
     ).filter { nextPos ->
-      0 <= nextPos.x && nextPos.x <= lastPos.x &&
-          0 <= nextPos.y && nextPos.y <= lastPos.y &&
-          elevations[nextPos]!! <= elevation + 1 &&
+      0 <= nextPos.x && nextPos.x <= hill.maxPos.x &&
+          0 <= nextPos.y && nextPos.y <= hill.maxPos.y &&
+          hill.elevations[nextPos]!! <= elevation + 1 &&
           visited[nextPos] == false
     }.map { nextPos ->
       visited[nextPos] = true
@@ -78,8 +71,28 @@ fun fewestSteps(input: String): Int {
     }
   }
 
-  println("numLoops = $numLoops")
-  return distances[endPos]!!
+  return distances[hill.endPos]!!
 }
 
-data class Pos(val x: Int, val y: Int)
+fun parseHill(input: String, isStartPos: (Char) -> Boolean): Hill {
+  val startPosList = mutableListOf<Pos>()
+  var endPos = Pos(-1, -1)
+  val elevations = mutableMapOf<Pos, Int>()
+  input.lines().mapIndexed { i, line ->
+    line.mapIndexed { j, char ->
+      if (isStartPos(char)) startPosList.add(Pos(i, j))
+      if (char == 'E') endPos = Pos(i, j)
+      elevations[Pos(i, j)] = when (char) {
+        'S' -> 0
+        'E' -> 'z'.code - 'a'.code
+        else -> char.code - 'a'.code
+      }
+    }
+  }
+  return Hill(elevations, startPosList, endPos, elevations.keys.last())
+}
+
+data class Hill(val elevations: Map<Pos, Int>, val startPosList: List<Pos>, val endPos: Pos, val maxPos: Pos)
+
+data class Pos(val x: Int, val y: Int) {
+}
