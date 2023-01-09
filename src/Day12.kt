@@ -74,7 +74,7 @@ fun fewestSteps(input: String, isStartPos: (Char) -> Boolean): Int {
   return distances[hill.endPos]!!
 }
 
-fun parseHill(input: String, isStartPos: (Char) -> Boolean): Hill {
+private fun parseHill(input: String, isStartPos: (Char) -> Boolean): Hill {
   val startPosList = mutableListOf<Pos>()
   var endPos = Pos(-1, -1)
   val elevations = mutableMapOf<Pos, Int>()
@@ -92,7 +92,6 @@ fun parseHill(input: String, isStartPos: (Char) -> Boolean): Hill {
   return Hill(elevations, startPosList, endPos, elevations.keys.last())
 }
 
-data class Hill(val elevations: Map<Pos, Int>, val startPosList: List<Pos>, val endPos: Pos, val maxPos: Pos)
+private data class Hill(val elevations: Map<Pos, Int>, val startPosList: List<Pos>, val endPos: Pos, val maxPos: Pos)
 
-data class Pos(val x: Int, val y: Int) {
-}
+private data class Pos(val x: Int, val y: Int)
