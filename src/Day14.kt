@@ -20,9 +20,6 @@ fun main() {
   println("Part 2 Real Output: $part2RealOutput")
 }
 
-/**
- *
- */
 fun unitsOfSandToAbyss(input: String, useFloor: Boolean = false): Int {
   val grid = makeGrid(input, useFloor)
   var sandCount = 0
@@ -120,14 +117,6 @@ private data class Grid(val materials: Array<Array<Material>>, val entryPoint: P
 }
 
 private typealias Structure = List<Point>
-
-private data class Point(val x: Int, val y: Int) {
-  operator fun minus(other: Point): Point = Point(this.x - other.x, this.y - other.y)
-
-  override fun toString(): String {
-    return "($x,$y)"
-  }
-}
 
 private enum class Material(val char: Char) {
   AIR('.'), ROCK('#'), SAND('o'), ENTRY('+')
