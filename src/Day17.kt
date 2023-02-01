@@ -4,22 +4,38 @@ fun main() {
   val testInput = """>>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"""
   val realInput = File("src/Day17.txt").readText()
 
-  val part1TestOutput = towerHeight(testInput)
+  val part1TestOutput = towerHeight(testInput, 2022)
   println("Part 1 Test Output: $part1TestOutput")
   check(part1TestOutput == 3068)
 
-  val part1RealOutput = towerHeight(realInput)
+  val part1RealOutput = towerHeight(realInput, 2022)
   println("Part 1 Real Output: $part1RealOutput")
+
+  val part2TestOutput = bigTowerHeight(testInput, 1000000000000L)
+  println("Part 2 Test Output: $part2TestOutput")
+  check(part2TestOutput == 1514285714288L)
+
+  val part2RealOutput = bigTowerHeight(realInput, 1000000000000L)
+  println("Part 2 Real Output: $part2RealOutput")
 }
 
 private const val chamberWidth = 7
 private const val leftChar = '<'
 private const val rightChar = '>'
-private const val emptyChar = '.'
+private const val emptyChar = ' '
 private const val rockChar = '#'
-private const val numRocks = 2022
 
-private fun towerHeight(jets: String): Int {
+// This is not working
+private fun bigTowerHeight(jets: String, numRocks: Long): Long {
+  val numRepeatingRocks = jets.length * Shape.values().size * 1000
+  val numRepeats = numRocks / numRepeatingRocks
+  val numRemainingRocks = numRocks % numRepeatingRocks
+  val repeatingHeight = towerHeight(jets, numRepeatingRocks).toLong()
+  val remainderHeight = towerHeight(jets, numRemainingRocks.toInt()).toLong()
+  return numRepeats * repeatingHeight + remainderHeight
+}
+
+private fun towerHeight(jets: String, numRocks: Int): Int {
   val levels = mutableListOf(emptyLevel(), emptyLevel(), emptyLevel()) // level 0 is the bottom
   var jetIndex = 0
   var height = 0
@@ -67,7 +83,7 @@ private fun towerHeight(jets: String): Int {
     height = maxOf(shapePos.y + shape.height, height)
   }
 
-  printLevels(numRocks, height, levels)
+//  printLevels(numRocks, height, levels)
   return height
 }
 
